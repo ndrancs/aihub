@@ -76,6 +76,8 @@ fun AiHubApp(activity: MainActivity) {
     var showLinkDialog by remember { mutableStateOf(false) }
     var selectedLink by remember { mutableStateOf<LinkData?>(null) }
     var previousEnabledServices by remember { mutableStateOf(settings.enabledServices) }
+    var previousDesktopView by remember { mutableStateOf(settings.desktopView) }
+    var previousThirdPartyCookies by remember { mutableStateOf(settings.thirdPartyCookies) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -124,7 +126,6 @@ fun AiHubApp(activity: MainActivity) {
     var showManageServices by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
 
-    var currentRoot by remember { mutableStateOf<FrameLayout?>(null) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     fun updateServiceState(serviceId: String, update: (ServiceUiState) -> ServiceUiState) {
@@ -291,8 +292,6 @@ fun AiHubApp(activity: MainActivity) {
                     @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") AndroidView(
                         factory = { ctx ->
                         FrameLayout(ctx).apply {
-                            currentRoot = this
-
                             webViews.values.forEach { wv ->
                                 if (wv.parent == null) {
                                     addView(wv)
@@ -374,8 +373,6 @@ fun AiHubApp(activity: MainActivity) {
                             }
                         }
                     }, update = { root ->
-                        currentRoot = root
-
                         val currentService = selectedService
                         if (webViews[currentService.id] == null) {
                             val newWebView = createWebViewForService(
@@ -544,7 +541,9 @@ fun AiHubApp(activity: MainActivity) {
 
     var previousMaxKeepAlive by remember { mutableIntStateOf(settings.maxKeepAlive) }
 
-    LaunchedEffect(settings, WebViewSecurity.isBlockingEnabled) {
+    LaunchedEffect(
+        settings, WebViewSecurity.isBlockingEnabled
+    ) {
         val connectionBlockingChanged =
             WebViewSecurity.isBlockingEnabled != previousConnectionBlocking
         val limitChanged = settings.maxKeepAlive != previousMaxKeepAlive
@@ -571,8 +570,22 @@ fun AiHubApp(activity: MainActivity) {
         }
     }
 
+    // Reload all tabs when settings change
     LaunchedEffect(showSettingsScreen) {
         if (!showSettingsScreen) {
+            val desktopViewChanged = settings.desktopView != previousDesktopView
+            val thirdPartyCookiesChanged = settings.thirdPartyCookies != previousThirdPartyCookies
+
+            val reloadRequired = desktopViewChanged || thirdPartyCookiesChanged
+
+            if (reloadRequired) {
+                applySettingsToAllWebViews(true)
+                Log.d("AI_HUBP", "Reloading all webviews...")
+            }
+
+            previousDesktopView = settings.desktopView
+            previousThirdPartyCookies = settings.thirdPartyCookies
+
             enforceWebViewLimit()
 
             val currentEnabled = settings.enabledServices

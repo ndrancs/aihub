@@ -13,13 +13,13 @@ data class AiService(
 )
 
 data class AppSettings(
-    var enableCookies: Boolean = true,
     var enableZoom: Boolean = true,
-    var userAgent: String = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36",
     var loadLastOpenedAI: Boolean = true,
     var fontSize: String = "medium",
     var defaultServiceId: String = "chatgpt",
     var theme: String = "auto",
+    var desktopView: Boolean = false,
+    var thirdPartyCookies: Boolean = false,
     var maxKeepAlive: Int = 5,
     var enabledServices: Set<String> = emptySet(),
     var serviceOrder: List<String> = emptyList()

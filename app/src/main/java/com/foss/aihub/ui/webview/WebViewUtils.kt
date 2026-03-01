@@ -14,7 +14,8 @@ import com.foss.aihub.MainActivity
 import com.foss.aihub.models.AiService
 import com.foss.aihub.models.AppSettings
 import com.foss.aihub.models.LinkType
-import com.foss.aihub.utils.USER_AGENT
+import com.foss.aihub.utils.USER_AGENT_DESKTOP
+import com.foss.aihub.utils.USER_AGENT_MOBILE
 import com.foss.aihub.utils.cleanTrackingParams
 import com.foss.aihub.utils.extractLinkTitle
 
@@ -30,10 +31,6 @@ fun createWebViewForService(
     onError: (Int, String) -> Unit
 ): WebView {
     return WebView(context).apply {
-        val cookieManager = CookieManager.getInstance()
-        cookieManager.setAcceptCookie(true)
-        cookieManager.setAcceptThirdPartyCookies(this, false)
-
         layoutParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
         )
@@ -103,6 +100,11 @@ fun updateWebViewSettings(
     webView: WebView, settings: AppSettings, reload: Boolean
 ) {
     webView.settings.apply {
+        val cookieManager = CookieManager.getInstance()
+        cookieManager.setAcceptCookie(true)
+        cookieManager.setAcceptThirdPartyCookies(webView, settings.thirdPartyCookies)
+        Log.d("AI_HUB", "Third party cookies: ${settings.thirdPartyCookies}")
+
         setSupportZoom(settings.enableZoom)
         builtInZoomControls = settings.enableZoom
         displayZoomControls = false
@@ -157,7 +159,7 @@ fun updateWebViewSettings(
         allowContentAccess = true
         mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         cacheMode = WebSettings.LOAD_DEFAULT
-        userAgentString = USER_AGENT
+        userAgentString = if (settings.desktopView) USER_AGENT_DESKTOP else USER_AGENT_MOBILE
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             isAlgorithmicDarkeningAllowed = true

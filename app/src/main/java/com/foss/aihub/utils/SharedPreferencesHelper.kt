@@ -161,6 +161,8 @@ class SettingsManager(context: Context) {
             defaultServiceId = sharedPref.getString("defaultServiceId", "chatgpt") ?: "chatgpt",
             maxKeepAlive = sharedPref.getInt("maxKeepAlive", 5),
             theme = sharedPref.getString("theme", "auto") ?: "auto",
+            desktopView = sharedPref.getBoolean("desktopView", false),
+            thirdPartyCookies = sharedPref.getBoolean("thirdPartyCookies", false),
             enabledServices = loadEnabledServices(),
             serviceOrder = loadServiceOrder()
         )
@@ -174,6 +176,8 @@ class SettingsManager(context: Context) {
             putString("defaultServiceId", settings.defaultServiceId)
             putInt("maxKeepAlive", settings.maxKeepAlive)
             putString("theme", settings.theme)
+            putBoolean("desktopView", settings.desktopView)
+            putBoolean("thirdPartyCookies", settings.thirdPartyCookies)
             saveEnabledServices(settings.enabledServices)
             saveServiceOrder(settings.serviceOrder)
         }

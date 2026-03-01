@@ -25,6 +25,8 @@ import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Computer
+import androidx.compose.material.icons.outlined.Cookie
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.ExpandLess
@@ -111,6 +113,9 @@ fun SettingsScreen(
         )
     }
 
+    var desktopView by remember { mutableStateOf(settings.desktopView) }
+    var thirdPartyCookies by remember { mutableStateOf(settings.thirdPartyCookies) }
+
     val fontSizeOptions = listOf("x-small", "small", "medium", "large", "x-large")
 
     var showClearCacheDialog by remember { mutableStateOf(false) }
@@ -142,6 +147,14 @@ fun SettingsScreen(
     LaunchedEffect(limitSimultaneousAIs, maxKeepAlive) {
         val value = if (limitSimultaneousAIs) maxKeepAlive else Int.MAX_VALUE
         settingsManager.updateSettings { it.maxKeepAlive = value }
+    }
+
+    LaunchedEffect(desktopView) {
+        settingsManager.updateSettings { it.desktopView = desktopView }
+    }
+
+    LaunchedEffect(thirdPartyCookies) {
+        settingsManager.updateSettings { it.thirdPartyCookies = thirdPartyCookies }
     }
 
     val orderedServices = remember(settings) {
@@ -469,6 +482,7 @@ fun SettingsScreen(
                     Column {
                         SettingItem(
                             title = "Pinch to zoom",
+                            description = "Zoom in and out of web pages",
                             icon = Icons.Outlined.ZoomIn,
                             iconColor = MaterialTheme.colorScheme.primary
                         ) {
@@ -490,7 +504,54 @@ fun SettingsScreen(
                         )
 
                         SettingItem(
+                            title = "Desktop mode",
+                            description = "Request desktop versions of websites",
+                            icon = Icons.Outlined.Computer,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Switch(
+                                checked = desktopView,
+                                onCheckedChange = { desktopView = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
+                                )
+                            )
+                        }
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        SettingItem(
+                            title = "Allow third-party cookies",
+                            description = "May be required for some logins",
+                            icon = Icons.Outlined.Cookie,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Switch(
+                                checked = thirdPartyCookies,
+                                onCheckedChange = { thirdPartyCookies = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
+                                )
+                            )
+                        }
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        SettingItem(
                             title = "Font size",
+                            description = "Change text size",
                             icon = Icons.Outlined.TextIncrease,
                             iconColor = MaterialTheme.colorScheme.primary,
                             onClick = { showFontSizeOptions = !showFontSizeOptions }) {
